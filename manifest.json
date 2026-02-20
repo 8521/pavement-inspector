@@ -2,7 +2,7 @@
   "name": "Pavement Inspector",
   "short_name": "Inspector",
   "description": "ASTM D6433 Pavement Inspection Reporter",
-  "start_url": "./",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#0f111a",
   "theme_color": "#1a1c29",
