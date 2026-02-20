@@ -226,7 +226,7 @@ function renderAddDistress() {
                     </div>
                     <div id="photoMetadata" style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
                         ${state.currentDistressData.coords ? `
-                            <div>Easting: ${state.currentDistressData.coords.easting.toFixed(2)} | Northing: ${state.currentDistressData.coords.northing.toFixed(2)}</div>
+                            <div>Lat: ${state.currentDistressData.coords.latitude.toFixed(6)} | Lon: ${state.currentDistressData.coords.longitude.toFixed(6)}</div>
                             <div>Bearing: ${state.currentDistressData.bearing !== null ? state.currentDistressData.bearing.toFixed(0) + '°' : 'N/A'}</div>
                             <div>Time: ${new Date(state.currentDistressData.timestamp).toLocaleTimeString()}</div>
                         ` : 'Take a photo to record GPS & Bearing.'}
@@ -239,17 +239,6 @@ function renderAddDistress() {
             </div>
         </div>
     `;
-}
-
-// Haversine/UTM approximation (simplified lat/lon to easting/northing base projection)
-function latLonToEastingNorthing(lat, lon) {
-    // Simplified fake projection or WGS84 Pseudo-Mercator approximation for demonstration
-    // In a real pro app, include proj4js for precise strict UTM conversions.
-    // Assuming simple spherical Mercator scaled for general localized coordinates
-    const r = 6378137;
-    const easting = r * (lon * Math.PI / 180.0);
-    const northing = r * Math.log(Math.tan((Math.PI / 4.0) + ((lat * Math.PI / 180.0) / 2.0)));
-    return { easting, northing };
 }
 
 window.handlePhotoCapture = (e) => {
@@ -275,7 +264,7 @@ window.handlePhotoCapture = (e) => {
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     const { latitude, longitude } = pos.coords;
-                    state.currentDistressData.coords = latLonToEastingNorthing(latitude, longitude);
+                    state.currentDistressData.coords = { latitude, longitude };
 
                     // Bearing requires HTTPS
                     if (window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
@@ -342,7 +331,7 @@ const finishPhotoCapture = () => {
 
     let metaHtml = `<div>Time: ${new Date(state.currentDistressData.timestamp).toLocaleTimeString()}</div>`;
     if (state.currentDistressData.coords) {
-        metaHtml += `<div>Easting: ${state.currentDistressData.coords.easting.toFixed(2)} | Northing: ${state.currentDistressData.coords.northing.toFixed(2)}</div>`;
+        metaHtml += `<div>Lat: ${state.currentDistressData.coords.latitude.toFixed(6)} | Lon: ${state.currentDistressData.coords.longitude.toFixed(6)}</div>`;
     }
     if (state.currentDistressData.bearing !== null) {
         metaHtml += `<div>Bearing: ${state.currentDistressData.bearing.toFixed(0)}°</div>`;
@@ -429,7 +418,7 @@ function renderViewDistresses() {
                             <div style="margin-top: 12px; display:flex; gap: 12px; align-items: center;">
                                 <img src="${d.photoUrl}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;" />
                                 <div style="font-size: 11px; color: var(--text-secondary);">
-                                    ${d.coords ? `E: ${d.coords.easting.toFixed(0)} N: ${d.coords.northing.toFixed(0)}<br>` : ''}
+                                    ${d.coords ? `Lat: ${d.coords.latitude.toFixed(6)} Lon: ${d.coords.longitude.toFixed(6)}<br>` : ''}
                                     ${d.bearing !== null ? `Brg: ${d.bearing.toFixed(0)}°<br>` : ''}
                                     Time: ${d.timestamp ? new Date(d.timestamp).toLocaleTimeString() : 'N/A'}
                                 </div>
