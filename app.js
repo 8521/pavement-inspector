@@ -47,6 +47,14 @@ function renderMainMenu() {
                 <button class="btn btn-secondary" onclick="navigateTo('viewReports')">
                     <i class="fas fa-list"></i> See Existing Reports
                 </button>
+                <div style="margin-top: 16px;">
+                    <button class="btn btn-outline" id="installBtn" style="display: none; background: rgba(16, 185, 129, 0.2); border-color: var(--accent-green); color: var(--accent-green);">
+                        <i class="fas fa-download"></i> Install App
+                    </button>
+                    <button class="btn btn-outline" onclick="checkPwaStatus()" style="font-size: 12px; padding: 8px;">
+                        <i class="fas fa-bug"></i> Run PWA Diagnostics
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -456,6 +464,46 @@ function render() {
         default: app.innerHTML = renderMainMenu();
     }
 }
+
+// --- PWA Installation & Diagnostic Logic ---
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+
+    // Show our custom install button
+    const installBtn = document.getElementById('installBtn');
+    if (installBtn) {
+        installBtn.style.display = 'flex';
+        installBtn.onclick = async () => {
+            if (deferredPrompt !== null) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+                installBtn.style.display = 'none';
+            }
+        };
+    }
+});
+
+window.checkPwaStatus = () => {
+    let msg = "Diagnostics:\\n";
+    if (window.isSecureContext) msg += "✅ Secure Context (HTTPS/localhost)\\n";
+    else msg += "❌ NOT Secure Context (HTTPS required)\\n";
+
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) msg += "✅ Service Worker Active\\n";
+    else msg += "❌ Service Worker NOT Active\\n";
+
+    msg += deferredPrompt ? "✅ Install Prompt ready" : "❌ Install Prompt NOT ready (either already installed or manifest failed)";
+
+    alert(msg);
+};
 
 // Init
 window.addEventListener('DOMContentLoaded', () => {
