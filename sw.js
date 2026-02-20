@@ -1,11 +1,11 @@
 const CACHE_NAME = 'pavement-inspector-v1';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/styles.css',
-    '/app.js',
-    '/icon.svg',
-    '/manifest.json'
+    './',
+    './index.html',
+    './styles.css',
+    './app.js',
+    './icon.svg',
+    './manifest.json'
 ];
 
 self.addEventListener('install', event => {
